@@ -71,7 +71,19 @@ public class SpringOauth2SimpleApplication extends WebSecurityConfigurerAdapter 
 		UserInfoTokenServices tokenServices = new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId());
 		tokenServices.setRestTemplate(facebookTemplate);
 		facebookFilter.setTokenServices(tokenServices);
-		return facebookFilter;
+		filters.add(facebookFilter);
+		
+		OAuth2ClientAuthenticationProcessingFilter githubFilter = new OAuth2ClientAuthenticationProcessingFilter("/login/github");
+		OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(facebook(), oAuth2ClientContext);
+		githubFilter.setRestTemplate(githubTemplate);
+		tokenServices = new UserInfoTokenServices(githubResource().getUserInfoUri(), github().getClientId());
+		tokenServices.setRestTemplate(githubTemplate);
+		githubFilter.setTokenServices(tokenServices);
+		filters.add(githubFilter);
+		
+		filter.setFilters(filters);
+		return filter;
+		
 	}
 
 	@Bean
@@ -83,6 +95,19 @@ public class SpringOauth2SimpleApplication extends WebSecurityConfigurerAdapter 
 	@Bean
 	@ConfigurationProperties("facebook.resource")
 	private ResourceServerProperties facebookResource() {
+		return new ResourceServerProperties();
+	}
+	
+	@Bean
+	@ConfigurationProperties("github.client")
+	private ResourceServerProperties github() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Bean
+	@ConfigurationProperties("github.resource")
+	private ResourceServerProperties githubResource() {
 		return new ResourceServerProperties();
 	}
 	
